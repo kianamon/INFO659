@@ -1,0 +1,163 @@
+---
+title: "Problem Understanding and Data Exploration"
+output: html_notebook
+---
+###Kiana Montazeri, INFO659
+
+###<font color=blue>Purpose</font>
+The purpose of the assignment is for you to follow the data analytics lifecycle/process and start
+with understanding the business problem, data identification, preparation, and initial exploration.
+The outcome of this assignment should be a notebook (report) on the problem, data, and
+results from your initial analysis, with related code and data files.<br>
+
+### <font color=blue>Dataset</font>
+For this assignment I will use a dataset on World Happiness Report, provided on Kaggle website.I will only use this report from the year 2016.
+Taken from Kaggle:
+"The World Happiness Report is a landmark survey of the state of global happiness. The first report was published in 2012, the second in 2013, and the third in 2015. The World Happiness Report 2016 Update, which ranks 156 countries by their happiness levels, was released today in Rome in advance of UN World Happiness Day, March 20th. Leading experts across fields – economics, psychology, survey analysis, national statistics, health, public policy and more – describe how measurements of well-being can be used effectively to assess the progress of nations. The reports review the state of happiness in the world today and show how the new science of happiness explains personal and national variations in happiness. They reflect a new worldwide demand for more attention to happiness as a criteria for government policy."
+
+"What countries or regions rank the highest in overall happiness and each of the six factors contributing to happiness? How did country ranks or scores change between the 2015 and 2016 reports? Did any country experience a significant increase or decrease in happiness?"
+
+Here is a summary of what is on the dataset and a brief explanations on each feature:
+```{r}
+happyness <- read.csv("2016.csv", header=TRUE, sep=",")
+```
+
+```{r}
+head(happyness)
+```
+```{r}
+names(happyness)
+```
+
+```{r}
+summary(happyness)
+```
+
+```{r}
+sapply(happyness, class)
+```
+```{r}
+nrow(happyness)
+```
+
+### <font color=blue>Tasks and Steps</font>
+#### 1. Think Business: Framing the business problem
+
+Please identify a specific business domain or topic suitable for data analytics, introduce the
+background to the problem you would like to resolve, and frame the problem (question) while
+thinking about what data you can access to solve the problem (or answer the question). Please
+present the business problem and state your objectives clearly, for which the following steps
+will be conducted.
+
+<font color=green>Background and Business Problem:</font><br>
+
+The dataset that we have chosen is happiness 2016 dataset, one of Kaggle’s dataset. This dataset gives the happiness rank and happiness score of 157 countries around the world based on seven factors including family, life expectancy, economy, generosity, trust in government, freedom, and dystopia residual. Sum of the value of these seven factors gives us the happiness score and the higher the happiness score, the lower the happiness rank. So, it is evident that the higher value of each of these seven factors means the level of happiness is higher. We can define the meaning of these factors as the extent to which these factors lead to happiness. Dystopia is the opposite of utopia and has the lowest happiness level. Dystopia will be considered as a reference for other countries to show how far they are from being the poorest country regarding happiness level.
+
+<font color=green>Objective:</font><br>
+
+The purpose of choosing this work is to find out which factors are more important to live a happier life. As a result, people and countries can focus on the more significant factors to achieve a higher happiness level.
+
+#### 2. Understand Data: Data source identification and understanding
+
+Describe your data in terms of the following aspects:
+
+**Concept of learning**: From the machine learning point of view, what is the concept of
+learning or what do you want your analytic models/methods to discover and learn about
+from data? This is essentially converting your understanding of the business problem
+into a data analytics and machine learning problem.<br>
+
+<font color=blue> I want to implement ML algorithms to predict the happiness score based on these criteria and compare the result to discover which algorithm works better for this dataset. The outcome of the model can be predicting the happyness level of a country based on the features extracted from polls and surveys. </font><br>
+**Data attributes ( at least 3 numeric attributes/columns among others )** : What are
+available attributes (variables) in the data? What are the data types? Which ones are
+potentially relevant to the concept of learning, in what ways?<br>
+<font color=blue>Most of the attributes in this dataset are relevant to the outcome predicted by the model. For instances, freedom, life expectancy, economy, and family can play a role in this data.<br></font>
+
+<font color=blue></font><br>
+**Data instances ( at least 50 instances/rows )**: Provide a few examples of your data,
+discuss the data format (preferably CSV) and explain the meaning with one or two
+data instances/examples.<br>
+<font color=blue> I have done this in the begining of this notebook where we can take a look at the head and tail of this dataset as well as some statistical overview of the data.<br></font>
+
+#### 3. Data in Action: Data preparation, visualization and exploration
+##### 3A.Data preparation and loading:
+We have loaded the data previously, and here is the first 5 rows of the dataframe:
+```{r}
+head(happyness, 5)
+```
+##### 3B. Data distribution and Anomalies:
+
+```{r}
+hist(happyness$Family, breaks=10, xlab="Family", main="Family and Happyness Level")
+```
+```{r}
+hist(happyness$Health..Life.Expectancy., breaks=20, xlab="Life Expectancy Factor", main="Life Expectancy and Happyness Level")
+```
+```{r}
+hist(happyness$Dystopia.Residual, breaks=10, xlab="Dystopia Residual Factor", main="Dystopia Residual and Happyness Level")
+```
+**1. Does the range of the variable make sense? Is it reasonable according to your
+knowledge of the data and domain?**<br>
+<font color=blue>YEs, Health-life expectency is a factor between zero and one, so it seems reseanable to have this histogram, the residual factor has a mean of around 2.32 according to the summary of the dataframe.<br></font>
+**2. Does the histogram/distribution look normal (a bell curve)? Do any parts of the
+distribution appear to be anomalies (e.g. sudden “spikes”)? Should data be corrected
+(cleansed) given the anomalies if any?**<br>
+<font color=blue>For family factor, the data is highly skewed, but I believe that is not an anomoly, since there are no data on any country that has a factor of more than 1.2. The dystopia residual factor is bell shaped and the life expectancy is not distributed normally and in this case as well I believe there is a social reason behind the distribution and not the faulty data.<br></font>
+
+##### 3C. Data distribution with log transformation:
+Examine the above distribution (histograms) and pay attention to the skewness of each
+distribution (i.e. heavy on one side vs. the other).
+Pick the variable with the most skewed distribution (one variable only), produce another
+histogram based on logarithm of its values, using hist() and log10() function:
+```{r}
+hist(log10(happyness$Family), breaks=10, xlab="Family", main="Family and Happyness Degree")
+```
+
+<font color=blue>The skewness got worst by taking the log10. But if we apply an exponential function the distribution would be colser to normal:<br></font>
+```{r}
+hist(exp(happyness$Family), breaks=10, xlab="Family", main="Family and Happyness Degree")
+```
+
+##### 3D. Examining multiple variables and regression:
+
+Identify two variables relevant to the concept: one as the predictor variable (e.g. attributeX) and
+t he other to be predicted (e.g. attributeY).<br>
+Produce a scatter plot between attributeX and the attributeY variables.<br>
+Conduct linear regression on attributeY to be modeled by attributeX using the lm()
+function, and assign the result model to a variable.<br>
+Add the regression line to the scatter plot by:<br>
+```{r}
+plot(happyness$Health..Life.Expectancy., happyness$Happiness.Score, xlab="Life Expectancy Factor", ylab="Happyness Rate")
+myline <- lm(happyness$Happiness.Score ~ happyness$Health..Life.Expectancy.)
+points(happyness$Health..Life.Expectancy., myline$coefficients[1] + (myline$coefficients[2] * happyness$Health..Life.Expectancy.), type = "l", col = "red")
+```
+
+
+Does the linear regression line capture the relation between the two variables? To what degree? What do you think is the
+relation between the two?
+<font color=blue>Yes, it captures the trend pretty well. There are few points that are outliers but in general we can see a linear relationship between the two factors. And in terms of intuition, it totally makes sense to have a higher happyness rate if the life expectancy factor is higher.<br></font>
+#### 4. Discussion, understanding, and planning
+Given your problem, concept, and objectives, can the concept be learned from your
+data? And can your problem be resolved and objectives achieved with analytics on this
+data?<br>
+<font color=blue>We can see that the life expectency factor is playing a very important role in the degree of happyness in a country. This analysis is not specifically suggesting that this is the most important factor among the variables that we have. In order to extract the most important feature we nee to perform another analysis to figure out the importance of each feature.<br></font>
+
+Is the data of good quality? Are data within their normal ranges? Do the data need
+cleansing or correction?<br>
+<font color=blue>It seems like that this is a pretty clean dataset that was extracted from surveys. There are few outliers in each section but overall the dataset is reliable.<br></font>
+
+Is log transformation or any other transformation necessary for some of the numeric
+variables in the data?<br>
+<font color=blue>Since the variations in most of the features re not drastic, I don't see a reason why log transformation should be crucial. But it can be useful for some applications and in visualization of the analysis.<br></font>
+
+Is a linear model (linear regression) suitable for the modeling?<br>
+<font color=blue>For modeling the effects of life expectancy on happyness degree it seems like a linear model is working very well.<br></font>
+
+Do you need more data instances (rows) for actual modeling?<br>
+<font color=blue>The more data points we have our analysis can be more accurate and the model will predict the labels better. But 157 labels in this case can work okay.<br></font>
+
+Do you need additional data (other variables and/or sources of data) for the project?<br>
+<font color=blue>These data ppints were extracted from polls and surveys. Of course if we include more factors in the study, the model we develop will be more complex and it is possible to get better predictions. <br></font>
+
+What other insight do you gain from this exploratory analysis? Discuss any other
+observation you have so far.<br>
+<font color=blue>the rank of the happyness should not be included in the analysis since it will give away the predictions beacuse the variable is highly correlated to the actual labels. It would reduce the generalization of the model and it may cause overfitting.<br></font>
